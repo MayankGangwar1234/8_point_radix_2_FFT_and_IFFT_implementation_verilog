@@ -1,6 +1,6 @@
 
 module fft_8point (
-  	input wire fftorifft,
+  	input wire fftorifft, // 0 for fft and 1 for ifft
     input wire [15:0] real_in [0:7], // Real part of inputs
     input wire [15:0] imag_in [0:7], // Imaginary part of inputs
   output reg [15:0] real_outi [0:7], // Real part of FFT output
