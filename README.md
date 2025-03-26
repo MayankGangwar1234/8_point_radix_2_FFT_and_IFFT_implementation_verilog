@@ -54,14 +54,13 @@ Verilog of an 8-point Fast Fourier Transform (FFT) and Inverse FFT (IFFT) proces
    - Stage 2: 2 parallel butterflies with twiddle factors
    - Stage 3: Final butterfly computations with twiddle factors
 ### IFFT Algorithm
-1.Input bit-reversal reordering
-2.Reorder the input data based on bit-reversed indices.
-3.Three stages of butterfly computations (inverse FFT processing):
+ 1.Input bit-reversal reordering
+ 2.Reorder the input data based on bit-reversed indices.
+ 3.Three stages of butterfly computations (inverse FFT processing):
    -Stage 1: 4 parallel butterflies (basic butterfly operations).
    -Stage 2: 2 parallel butterflies with inverse twiddle factors.
    -Stage 3: Final butterfly computations with inverse twiddle factors.
-4.Normalize the output (divide each value by N, where N is the FFT size).
-
+ 4.Normalize the output (divide each value by N, where N is the FFT size).
 ### Twiddle Factors
 Precomputed values for 8-point FFT:
 - W₈⁰ = 1 + j0
