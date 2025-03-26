@@ -114,3 +114,20 @@ module ieee16bitsubtraction (input [15:0] in1, input [15:0] in2,input signal, ou
     end
   end
 endmodule
+
+module ieee16bit_add(input [15:0] in1,input [15:0]in2,output reg [15:0]op);
+  wire signal;
+  assign signal=in1[15]^in2[15];
+  wire [15:0]opadd,opsub;
+  ieee16bitsubtraction sub(in1,in2,signal,opsub);
+  ieee16bitaddition add(in1,in2,signal,opadd);
+  assign op= in1[15]^in2[15] ? opsub:opadd;
+endmodule
+
+module ieee16bit_sub(input [15:0] in1,input [15:0]in2,output reg [15:0]op);
+  reg [15:0] tin2;
+  always @(*) begin
+  tin2={~in2[15],in2[14:0]};
+  end
+  ieee16bit_add x(in1,tin2,op);
+endmodule
