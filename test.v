@@ -194,3 +194,94 @@ module fft_8point_tb;
     end
 
 endmodule
+
+
+//output of FFT or IFFT accoarding to given input
+/*
+
+# KERNEL: Test Case 1: Infinity Input Test
+# KERNEL: invalid_input = 1 (expected 1)
+# KERNEL: Real Outputs:
+# KERNEL: real_out[0] = xxxx
+# KERNEL: real_out[1] = xxxx
+# KERNEL: real_out[2] = xxxx
+# KERNEL: real_out[3] = xxxx
+# KERNEL: real_out[4] = xxxx
+# KERNEL: real_out[5] = xxxx
+# KERNEL: real_out[6] = xxxx
+# KERNEL: real_out[7] = xxxx
+# KERNEL: Imaginary Outputs:
+# KERNEL: imag_out[0] = xxxx
+# KERNEL: imag_out[1] = xxxx
+# KERNEL: imag_out[2] = xxxx
+# KERNEL: imag_out[3] = xxxx
+# KERNEL: imag_out[4] = xxxx
+# KERNEL: imag_out[5] = xxxx
+# KERNEL: imag_out[6] = xxxx
+# KERNEL: imag_out[7] = xxxx
+# KERNEL: 
+# KERNEL: Test Case 2: Basic FFT Test
+# KERNEL: invalid_input = 0
+# KERNEL: Real Outputs:
+# KERNEL: real_out[0] = 41a8
+# KERNEL: real_out[1] = b9a8
+# KERNEL: real_out[2] = bda8
+# KERNEL: real_out[3] = b9a8
+# KERNEL: real_out[4] = 0000
+# KERNEL: real_out[5] = b9a8
+# KERNEL: real_out[6] = 3da8
+# KERNEL: real_out[7] = b9a8
+# KERNEL: Imaginary Outputs:
+# KERNEL: imag_out[0] = 41a8
+# KERNEL: imag_out[1] = 3ed3
+# KERNEL: imag_out[2] = bda8
+# KERNEL: imag_out[3] = 34ae
+# KERNEL: imag_out[4] = 0000
+# KERNEL: imag_out[5] = b4ae
+# KERNEL: imag_out[6] = bda8
+# KERNEL: imag_out[7] = bed3
+# KERNEL: 
+# KERNEL: Test Case 3: IFFT Test
+# KERNEL: invalid_input = 0
+# KERNEL: Real Outputs:
+# KERNEL: real_out[0] = 0000
+# KERNEL: real_out[1] = 9000
+# KERNEL: real_out[2] = 0000
+# KERNEL: real_out[3] = 9000
+# KERNEL: real_out[4] = 39a8
+# KERNEL: real_out[5] = 39a7
+# KERNEL: real_out[6] = 39a8
+# KERNEL: real_out[7] = 39a7
+# KERNEL: Imaginary Outputs:
+# KERNEL: imag_out[0] = 0000
+# KERNEL: imag_out[1] = 0000
+# KERNEL: imag_out[2] = 39a8
+# KERNEL: imag_out[3] = 39a8
+# KERNEL: imag_out[4] = 0000
+# KERNEL: imag_out[5] = 0000
+# KERNEL: imag_out[6] = 39a8
+# KERNEL: imag_out[7] = 39a8
+# KERNEL: 
+# KERNEL: Test Case 4: All Zeros Input
+# KERNEL: invalid_input = 0 (expected 0)
+# KERNEL: Real Outputs (should all be 0):
+# KERNEL: real_out[0] = 0000
+# KERNEL: real_out[1] = 0000
+# KERNEL: real_out[2] = 0000
+# KERNEL: real_out[3] = 0000
+# KERNEL: real_out[4] = 0000
+# KERNEL: real_out[5] = 0000
+# KERNEL: real_out[6] = 0000
+# KERNEL: real_out[7] = 0000
+# KERNEL: Imaginary Outputs (should all be 0):
+# KERNEL: imag_out[0] = 0000
+# KERNEL: imag_out[1] = 0000
+# KERNEL: imag_out[2] = 0000
+# KERNEL: imag_out[3] = 0000
+# KERNEL: imag_out[4] = 0000
+# KERNEL: imag_out[5] = 0000
+# KERNEL: imag_out[6] = 0000
+# KERNEL: imag_out[7] = 0000
+# KERNEL: 
+# KERNEL: All test cases completed.
+*/
