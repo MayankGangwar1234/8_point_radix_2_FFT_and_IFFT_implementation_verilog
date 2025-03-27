@@ -2,7 +2,7 @@
 
 # IEEE 16-bit Floating Point FFT/IFFT 8-point Processor
 
-Verilog of an 8-point Fast Fourier Transform (FFT) and Inverse FFT (IFFT) processor using IEEE 16-bit floating-point arithmetic.
+Verilog implementation of 8-point Fast Fourier Transform (FFT) and Inverse FFT (IFFT) processor using IEEE 16-bit floating-point arithmetic.
 
 ## Features
 
