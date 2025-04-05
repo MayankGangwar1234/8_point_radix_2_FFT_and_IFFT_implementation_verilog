@@ -1,24 +1,29 @@
-
 module fft_8point (
-  	input wire fftorifft, // 0 for fft and 1 for ifft
-    input wire [15:0] real_in [0:7], // Real part of inputs
-    input wire [15:0] imag_in [0:7], // Imaginary part of inputs
-  output reg [15:0] real_outi [0:7], // Real part of FFT output
-  output reg [15:0] imag_outi [0:7], // Imaginary part of FFT output
+  	input wire fftorifft,
+    input wire [15:0] real_in0,real_in1,real_in2,real_in3,real_in4,real_in5,real_in6,real_in7, // Real part of inputs
+    input wire [15:0] imag_in0, imag_in1, imag_in2, imag_in3, imag_in4, imag_in5, imag_in6, imag_in7, // Imaginary part of inputs
+  output reg [15:0] real_outi0, real_outi1 ,real_outi2, real_outi3, real_outi4 ,real_outi5, real_outi6, real_outi7, // Real part of FFT output
+  output reg [15:0] imag_outi0,imag_outi1,imag_outi2,imag_outi3,imag_outi4,imag_outi5,imag_outi6,imag_outi7, // Imaginary part of FFT output
   output reg invalid_input
 );
     
-    reg [15:0] real_stage1 [0:7], imag_stage1 [0:7];
-    reg [15:0] real_stage2 [0:7], imag_stage2 [0:7];
-    reg [15:0] real_stage3 [0:7], imag_stage3 [0:7];
-  	reg [15:0] real_out [0:7], imag_out[0:7];
+    wire [15:0] real_stage1 [0:7], imag_stage1 [0:7];
+    wire [15:0] real_stage2 [0:7], imag_stage2 [0:7];
+    wire [15:0] real_stage3 [0:7], imag_stage3 [0:7];
+  	wire [15:0] real_out [0:7], imag_out[0:7];
     
-    bit_reversal_8point br (
-        .real_in(real_in), .imag_in(imag_in),
-        .real_out(real_stage1), .imag_out(imag_stage1)
+     bit_reversal_8point br (
+        .real_in0(real_in0), .real_in1(real_in1), .real_in2(real_in2), .real_in3(real_in3),
+        .real_in4(real_in4), .real_in5(real_in5), .real_in6(real_in6), .real_in7(real_in7),
+        .imag_in0(imag_in0), .imag_in1(imag_in1), .imag_in2(imag_in2), .imag_in3(imag_in3),
+        .imag_in4(imag_in4), .imag_in5(imag_in5), .imag_in6(imag_in6), .imag_in7(imag_in7),
+        .real_out0(real_stage1[0]), .real_out1(real_stage1[1]), .real_out2(real_stage1[2]), .real_out3(real_stage1[3]),
+        .real_out4(real_stage1[4]), .real_out5(real_stage1[5]), .real_out6(real_stage1[6]), .real_out7(real_stage1[7]),
+        .imag_out0(imag_stage1 [0]), .imag_out1(imag_stage1 [1]), .imag_out2(imag_stage1 [2]), .imag_out3(imag_stage1 [3]),
+        .imag_out4(imag_stage1 [4]), .imag_out5(imag_stage1 [5]), .imag_out6(imag_stage1 [6]), .imag_out7(imag_stage1 [7])
     );
     
-  reg [15:0] w0_real [0:3], w0_imag [0:3];
+  wire [15:0] w0_real [0:3], w0_imag [0:3];
     
     twiddle_factor_rom twiddle_rom (
       .fftorifft(fftorifft),
@@ -40,8 +45,8 @@ module fft_8point (
         end
     endgenerate
   
-    reg [15:0] a1, ai1, a2, ai2, a3, ai3, a4, ai4;
-  reg [15:0] b1,bi1,b2,bi2,b3,bi3,b4,bi4;
+    wire [15:0] a1, ai1, a2, ai2, a3, ai3, a4, ai4;
+  wire [15:0] b1,bi1,b2,bi2,b3,bi3,b4,bi4;
   multi_two_imaginary a(.real_in1(real_stage2[2]),.imag_in1(imag_stage2[2]),.real_in2(w0_real[0]),.imag_in2(w0_imag[0]),.real_op(a1),.imag_op(ai1));
   multi_two_imaginary b(.real_in1(real_stage2[3]),.imag_in1(imag_stage2[3]),.real_in2(w0_real[2]),.imag_in2(w0_imag[2]),.real_op(a2),.imag_op(ai2));
   multi_two_imaginary c(.real_in1(real_stage2[6]),.imag_in1(imag_stage2[6]),.real_in2(w0_real[0]),.imag_in2(w0_imag[0]),.real_op(a3),.imag_op(ai3));
@@ -111,7 +116,7 @@ module fft_8point (
 
     integer j,k;
     always @(*) begin
-      if(real_in[0][14:10]==5'd31 || real_in[1][14:10]==5'd31 || real_in[2][14:10]==5'd31 || real_in[3][14:10]==5'd31 || real_in[4][14:10]==5'd31 || real_in[5][14:10]==5'd31 ||real_in[6][14:10]==5'd31 || real_in[7][14:10]==5'd31 ||imag_in[0][14:10]==5'd31 ||imag_in[1][14:10]==5'd31 ||imag_in[2][14:10]==5'd31 ||imag_in[3][14:10]==5'd31 ||imag_in[4][14:10]==5'd31 ||imag_in[5][14:10]==5'd31 ||imag_in[6][14:10]==5'd31 ||real_out[7][14:10]==5'd31 )begin
+     if(real_in0[14:10]==5'd31 || real_in1[14:10]==5'd31 || real_in2[14:10]==5'd31 || real_in3[14:10]==5'd31 || real_in4[14:10]==5'd31 || real_in5[14:10]==5'd31 ||real_in6[14:10]==5'd31 || real_in7[14:10]==5'd31 ||imag_in0[14:10]==5'd31 ||imag_in1[14:10]==5'd31 ||imag_in2[14:10]==5'd31 ||imag_in3[14:10]==5'd31 ||imag_in4[14:10]==5'd31 ||imag_in5[14:10]==5'd31 ||imag_in6[14:10]==5'd31 ||real_in7[14:10]==5'd31 )begin
       
       invalid_input=1'b1;
       end
@@ -140,16 +145,63 @@ module fft_8point (
             end
             
         end
-        real_outi=real_out;
-        imag_outi=imag_out;
-      for(k=0;k<8;k=k+1) begin
-        real_outi[k][14:10]=real_outz[k];
-        imag_outi[k][14:10]=imag_outz[k];
+        real_outi0=real_out[0];
+        real_outi1=real_out[1];
+        real_outi2=real_out[2];
+        real_outi3=real_out[3];
+        real_outi4=real_out[4];
+        real_outi5=real_out[5];
+        real_outi6=real_out[6];
+        real_outi7=real_out[7];
+        
+        imag_outi0=imag_out[0];
+        imag_outi1=imag_out[1];
+        imag_outi2=imag_out[2];
+        imag_outi3=imag_out[3];
+        imag_outi4=imag_out[4];
+        imag_outi5=imag_out[5];
+        imag_outi6=imag_out[6];
+        imag_outi7=imag_out[7];
+    
+        real_outi0[14:10]=real_outz[0];
+         real_outi1[14:10]=real_outz[1];
+          real_outi2[14:10]=real_outz[2];
+           real_outi3[14:10]=real_outz[3];
+            real_outi4[14:10]=real_outz[4];
+             real_outi5[14:10]=real_outz[5];
+              real_outi6[14:10]=real_outz[6];
+               real_outi7[14:10]=real_outz[7];
+         
+        imag_outi0[14:10]=imag_outz[0];
+        
+         imag_outi1[14:10]=imag_outz[1];
+          imag_outi2[14:10]=imag_outz[2];
+           imag_outi3[14:10]=imag_outz[3];
+            imag_outi4[14:10]=imag_outz[4];
+             imag_outi5[14:10]=imag_outz[5];
+             imag_outi6[14:10]=imag_outz[6];
+              imag_outi7[14:10]=imag_outz[7];
+       
         end
-        end
-        else begin
-        real_outi=real_out;
-        imag_outi=imag_out;
+       else begin
+         real_outi0=real_out[0];
+        real_outi1=real_out[1];
+        real_outi2=real_out[2];
+        real_outi3=real_out[3];
+        real_outi4=real_out[4];
+        real_outi5=real_out[5];
+        real_outi6=real_out[6];
+        real_outi7=real_out[7];
+        
+        imag_outi0=imag_out[0];
+        imag_outi1=imag_out[1];
+        imag_outi2=imag_out[2];
+        imag_outi3=imag_out[3];
+        imag_outi4=imag_out[4];
+        imag_outi5=imag_out[5];
+        imag_outi6=imag_out[6];
+        imag_outi7=imag_out[7];
+    
         end
 
     end
