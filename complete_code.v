@@ -1,5 +1,3 @@
-// Code your design here
-// Code your design here
 module ieee16bitmultiplier(input [15:0] in1, input [15:0] in2, output reg [15:0] op);
   reg [4:0] exp1, exp2;
   reg [10:0] mantissa1, mantissa2;
@@ -39,125 +37,117 @@ module ieee16bitmultiplier(input [15:0] in1, input [15:0] in2, output reg [15:0]
   end
 endmodule 
 
-module ieee16bitaddition(input [15:0] in1, input [15:0] in2,input signal, output reg [15:0] op);
-  reg [4:0] exp1, exp2;
-  reg [10:0] mantissa1, mantissa2;
-  reg sign1, sign2;
-  reg [11:0] mantissa_addition; // Stores the 20-bit mantissa product
-  reg [4:0] exp_result;
+module ieee16bitaddition(input [15:0] in1, input [15:0] in2, input signal, output reg [15:0] op);
+    reg [4:0] exp1, exp2;
+    reg [10:0] mantissa1, mantissa2;
+    reg sign1, sign2;
+    reg [11:0] mantissa_addition;
+    reg [4:0] exp_result;
+    integer i;
 
-  always @ (*) begin
-    // Extract fields
-    if(~signal) begin
-      if(in1==16'b0 && in2==16'b0) op=16'b0;
-      else begin
-        exp1 = in1[14:10];
-        exp2 = in2[14:10];
-        mantissa1 = {1'b1, in1[9:0]}; // Adding implicit leading 1
-        mantissa2 = {1'b1, in2[9:0]}; // Adding implicit leading 1
-        sign1 = in1[15];
-        sign2 = in2[15];
-        if(exp1>exp2) begin
-          while(exp1!=exp2) begin
-            mantissa2={1'b0,mantissa2[10:1]};
-            exp2=exp2+1;
-          end
+    always @ (*) begin
+        if(~signal) begin
+            if(in1==16'b0 && in2==16'b0) op=16'b0;
+            else begin
+                exp1 = in1[14:10];
+                exp2 = in2[14:10];
+                mantissa1 = {1'b1, in1[9:0]};
+                mantissa2 = {1'b1, in2[9:0]};
+                sign1 = in1[15];
+                sign2 = in2[15];
+
+                // Fixed iteration count (max 31 shifts for 5-bit exponent)
+                if(exp1 > exp2) begin
+                    for(i=0; i<31 && exp1!=exp2; i=i+1) begin
+                        mantissa2 = {1'b0, mantissa2[10:1]};
+                        exp2 = exp2 + 1;
+                    end
+                end
+                else begin
+                    for(i=0; i<31 && exp2!=exp1; i=i+1) begin
+                        mantissa1 = {1'b0, mantissa1[10:1]};
+                        exp1 = exp1 + 1;
+                    end
+                end
+
+                exp_result = exp1;
+                mantissa_addition = mantissa1 + mantissa2;
+                
+                if(mantissa_addition==12'b0) op=16'b0;
+                else begin
+                    if (mantissa_addition[11]) begin
+                        op[9:0] = mantissa_addition[10:1];
+                        exp_result = exp_result + 1;
+                    end else begin
+                        op[9:0] = mantissa_addition[9:0];
+                    end
+                    op[14:10] = exp_result;
+                    op[15] = sign1 | sign2;
+                end
+            end
         end
-        else begin
-          while(exp2!=exp1) begin
-            mantissa1={1'b0,mantissa1[10:1]};
-            exp1=exp1+1;
-          end
-        end
-
-        // Compute exponent
-        exp_result = exp1 ;
-
-        // Compute mantissa multiplication
-        mantissa_addition = mantissa1 + mantissa2;
-        if(mantissa_addition==12'b0) op=16'b0;
-        else begin
-
-        // Normalize mantissa if needed
-        if (mantissa_addition[11]) begin
-          op[9:0] = mantissa_addition[10:1]; // Normalized mantissa
-          exp_result = exp_result + 1; // Adjust exponent
-        end else begin
-          op[9:0] = mantissa_addition[9:0]; // Adjust mantissa
-        end
-
-        // Assign final values
-        op[14:10] = exp_result;
-        op[15] = sign1 | sign2; // XOR for sign determination
-        end
-      end
     end
-  end
 endmodule
 
-module ieee16bitsubtraction (input [15:0] in1, input [15:0] in2,input signal, output reg [15:0] op);
-  reg [4:0] exp1, exp2;
-  reg [10:0] mantissa1, mantissa2;
-  reg sign1, sign2;
-  reg [11:0] mantissa_subtraction;
-  reg [11:0] real_mantissa;// Stores the 20-bit mantissa product
-  reg [4:0] exp_result;
+module ieee16bitsubtraction(input [15:0] in1, input [15:0] in2, input signal, output reg [15:0] op);
+    reg [4:0] exp1, exp2;
+    reg [10:0] mantissa1, mantissa2;
+    reg sign1, sign2;
+    reg [11:0] mantissa_subtraction;
+    reg [11:0] real_mantissa;
+    reg [4:0] exp_result;
+    integer i, j;
 
-  always @ (*) begin
-    // Extract fields
-    if(signal) begin
-      exp1 = in1[14:10];
-      exp2 = in2[14:10];
-      mantissa1 = {1'b1, in1[9:0]}; // Adding implicit leading 1
-      mantissa2 = {1'b1, in2[9:0]}; // Adding implicit leading 1
-      sign1 = in1[15];
-      sign2 = in2[15];
-      if(exp1>exp2) begin
-        op[15]=sign1;
-        while(exp1!=exp2) begin
-          mantissa2={1'b0,mantissa2[10:1]};
-          exp2=exp2+1;
+    always @ (*) begin
+        if(signal) begin
+            exp1 = in1[14:10];
+            exp2 = in2[14:10];
+            mantissa1 = {1'b1, in1[9:0]};
+            mantissa2 = {1'b1, in2[9:0]};
+            sign1 = in1[15];
+            sign2 = in2[15];
+
+            if(exp1 > exp2) begin
+                op[15] = sign1;
+                for(i=0; i<31 && exp1!=exp2; i=i+1) begin
+                    mantissa2 = {1'b0, mantissa2[10:1]};
+                    exp2 = exp2 + 1;
+                end
+            end
+            else begin
+                op[15] = sign2;
+                for(i=0; i<31 && exp2!=exp1; i=i+1) begin
+                    mantissa1 = {1'b0, mantissa1[10:1]};
+                    exp1 = exp1 + 1;
+                end
+            end
+
+            exp_result = exp1 + 1'b1;
+            mantissa_subtraction = mantissa1 - mantissa2;
+
+            if (mantissa_subtraction[11]) begin
+                real_mantissa = ~mantissa_subtraction + 1'b1;
+                if(exp1 == exp2) op[15] = sign2;
+            end
+            else real_mantissa = mantissa_subtraction;
+            
+            if(real_mantissa == 12'b0) op = 16'b0;
+            else begin
+                // Fixed iteration count for normalization
+                for(j=0; j<11 && ~real_mantissa[11]; j=j+1) begin
+                    real_mantissa = {real_mantissa[10:0], 1'b0};
+                    exp_result = exp_result - 1'b1;
+                end
+                
+                op[9:0] = real_mantissa[10:1];
+                op[14:10] = exp_result;
+            end
         end
-      end
-      else begin
-        op[15]=sign2;
-        while(exp2!=exp1) begin
-          mantissa1={1'b0,mantissa1[10:1]};
-          exp1=exp1+1;
-        end
-      end
-
-      // Compute exponent
-      exp_result = exp1+1'b1 ;
-
-      // Compute mantissa multiplication
-      mantissa_subtraction = mantissa1 - mantissa2;
-
-      // Normalize mantissa if needed
-      if (mantissa_subtraction[11]) begin
-        real_mantissa=~mantissa_subtraction+1'b1;
-        if(exp1==exp2)  op[15]=sign2;
-      end
-      else real_mantissa=mantissa_subtraction;
-      if(real_mantissa==12'b0) op=16'b0;
-      else begin
-        while(~real_mantissa[11]) begin
-          real_mantissa={real_mantissa[10:0],1'b0};
-          exp_result=exp_result-1'b1;
-        end
-      
-
-      // Assign final values
-      op[9:0]=real_mantissa[10:1];
-      op[14:10] = exp_result;
-      end
-       // XOR for sign determination
     end
-  end
 endmodule
 
 
-module ieee16bit_add(input [15:0] in1,input [15:0]in2,output reg [15:0]op);
+module ieee16bit_add(input [15:0] in1,input [15:0]in2,output wire [15:0]op);
   wire signal;
   assign signal=in1[15]^in2[15];
   wire [15:0]opadd,opsub;
@@ -166,7 +156,7 @@ module ieee16bit_add(input [15:0] in1,input [15:0]in2,output reg [15:0]op);
   assign op= in1[15]^in2[15] ? opsub:opadd;
 endmodule
 
-module ieee16bit_sub(input [15:0] in1,input [15:0]in2,output reg [15:0]op);
+module ieee16bit_sub(input [15:0] in1,input [15:0]in2,output wire [15:0]op);
   reg [15:0] tin2;
   always @(*) begin
   tin2={~in2[15],in2[14:0]};
@@ -174,7 +164,7 @@ module ieee16bit_sub(input [15:0] in1,input [15:0]in2,output reg [15:0]op);
   ieee16bit_add x(in1,tin2,op);
 endmodule
 
-module multi_two_imaginary(input [15:0] real_in1,input [15:0] imag_in1,input [15:0] real_in2,input [15:0] imag_in2,output reg [15:0] real_op,output reg [15:0] imag_op);
+module multi_two_imaginary(input [15:0] real_in1,input [15:0] imag_in1,input [15:0] real_in2,input [15:0] imag_in2,output  [15:0] real_op,output  [15:0] imag_op);
   //(a+ib)(c+id)=ac-bd+i(ad+bc)
   wire [15:0] ac,bd,ad,bc;
   ieee16bitmultiplier mul0(.in1(real_in1),.in2(real_in2),.op(ac));
@@ -194,8 +184,8 @@ endmodule
 module butterfly_unit (
     input wire [15:0] real_in1, imag_in1, // First complex input (X_even)
     input wire [15:0] real_in2, imag_in2, // Second complex input (X_odd)
-    output reg [15:0] real_out1, imag_out1, // Output X1
-    output reg [15:0] real_out2, imag_out2  // Output X2
+    output wire [15:0] real_out1, imag_out1, // Output X1
+    output wire [15:0] real_out2, imag_out2  // Output X2
 );
   ieee16bit_add f1(.in1(real_in1),.in2(real_in2),.op(real_out1));
   ieee16bit_add f2(.in1(imag_in1),.in2(imag_in2),.op(imag_out1));
@@ -204,24 +194,25 @@ module butterfly_unit (
 endmodule
 
 module bit_reversal_8point (
-    input wire [15:0] real_in [0:7], // Real part of inputs
-    input wire [15:0] imag_in [0:7], // Imaginary part of inputs
-    output reg [15:0] real_out [0:7], // Real part of reordered outputs
-    output reg [15:0] imag_out [0:7]  // Imaginary part of reordered outputs
+  input [15:0] real_in0, real_in1, real_in2, real_in3,
+  input [15:0] real_in4, real_in5, real_in6, real_in7,
+  input [15:0] imag_in0, imag_in1, imag_in2, imag_in3,
+  input [15:0] imag_in4, imag_in5, imag_in6, imag_in7,
+  output reg [15:0] real_out0, real_out1, real_out2, real_out3,
+  output reg [15:0] real_out4, real_out5, real_out6, real_out7,
+  output reg [15:0] imag_out0, imag_out1, imag_out2, imag_out3,
+  output reg [15:0] imag_out4, imag_out5, imag_out6, imag_out7
 );
-
-    // Bit-reversed index mapping
   always @(*) begin
-        real_out[0] = real_in[0]; imag_out[0] = imag_in[0]; // 000 -> 000
-        real_out[1] = real_in[4]; imag_out[1] = imag_in[4]; // 001 -> 100
-        real_out[2] = real_in[2]; imag_out[2] = imag_in[2]; // 010 -> 010
-        real_out[3] = real_in[6]; imag_out[3] = imag_in[6]; // 011 -> 110
-        real_out[4] = real_in[1]; imag_out[4] = imag_in[1]; // 100 -> 001
-        real_out[5] = real_in[5]; imag_out[5] = imag_in[5]; // 101 -> 101
-        real_out[6] = real_in[3]; imag_out[6] = imag_in[3]; // 110 -> 011
-        real_out[7] = real_in[7]; imag_out[7] = imag_in[7]; // 111 -> 111
-    end
-
+    real_out0 = real_in0; imag_out0 = imag_in0;
+    real_out1 = real_in4; imag_out1 = imag_in4;
+    real_out2 = real_in2; imag_out2 = imag_in2;
+    real_out3 = real_in6; imag_out3 = imag_in6;
+    real_out4 = real_in1; imag_out4 = imag_in1;
+    real_out5 = real_in5; imag_out5 = imag_in5;
+    real_out6 = real_in3; imag_out6 = imag_in3;
+    real_out7 = real_in7; imag_out7 = imag_in7;
+  end
 endmodule
 
 module twiddle_factor_rom (
@@ -273,24 +264,30 @@ endmodule
 
 module fft_8point (
   	input wire fftorifft,
-    input wire [15:0] real_in [0:7], // Real part of inputs
-    input wire [15:0] imag_in [0:7], // Imaginary part of inputs
-  output reg [15:0] real_outi [0:7], // Real part of FFT output
-  output reg [15:0] imag_outi [0:7], // Imaginary part of FFT output
+    input wire [15:0] real_in0,real_in1,real_in2,real_in3,real_in4,real_in5,real_in6,real_in7, // Real part of inputs
+    input wire [15:0] imag_in0, imag_in1, imag_in2, imag_in3, imag_in4, imag_in5, imag_in6, imag_in7, // Imaginary part of inputs
+  output reg [15:0] real_outi0, real_outi1 ,real_outi2, real_outi3, real_outi4 ,real_outi5, real_outi6, real_outi7, // Real part of FFT output
+  output reg [15:0] imag_outi0,imag_outi1,imag_outi2,imag_outi3,imag_outi4,imag_outi5,imag_outi6,imag_outi7, // Imaginary part of FFT output
   output reg invalid_input
 );
     
-    reg [15:0] real_stage1 [0:7], imag_stage1 [0:7];
-    reg [15:0] real_stage2 [0:7], imag_stage2 [0:7];
-    reg [15:0] real_stage3 [0:7], imag_stage3 [0:7];
-  	reg [15:0] real_out [0:7], imag_out[0:7];
+    wire [15:0] real_stage1 [0:7], imag_stage1 [0:7];
+    wire [15:0] real_stage2 [0:7], imag_stage2 [0:7];
+    wire [15:0] real_stage3 [0:7], imag_stage3 [0:7];
+  	wire [15:0] real_out [0:7], imag_out[0:7];
     
-    bit_reversal_8point br (
-        .real_in(real_in), .imag_in(imag_in),
-        .real_out(real_stage1), .imag_out(imag_stage1)
+     bit_reversal_8point br (
+        .real_in0(real_in0), .real_in1(real_in1), .real_in2(real_in2), .real_in3(real_in3),
+        .real_in4(real_in4), .real_in5(real_in5), .real_in6(real_in6), .real_in7(real_in7),
+        .imag_in0(imag_in0), .imag_in1(imag_in1), .imag_in2(imag_in2), .imag_in3(imag_in3),
+        .imag_in4(imag_in4), .imag_in5(imag_in5), .imag_in6(imag_in6), .imag_in7(imag_in7),
+        .real_out0(real_stage1[0]), .real_out1(real_stage1[1]), .real_out2(real_stage1[2]), .real_out3(real_stage1[3]),
+        .real_out4(real_stage1[4]), .real_out5(real_stage1[5]), .real_out6(real_stage1[6]), .real_out7(real_stage1[7]),
+        .imag_out0(imag_stage1 [0]), .imag_out1(imag_stage1 [1]), .imag_out2(imag_stage1 [2]), .imag_out3(imag_stage1 [3]),
+        .imag_out4(imag_stage1 [4]), .imag_out5(imag_stage1 [5]), .imag_out6(imag_stage1 [6]), .imag_out7(imag_stage1 [7])
     );
     
-  reg [15:0] w0_real [0:3], w0_imag [0:3];
+  wire [15:0] w0_real [0:3], w0_imag [0:3];
     
     twiddle_factor_rom twiddle_rom (
       .fftorifft(fftorifft),
@@ -312,8 +309,8 @@ module fft_8point (
         end
     endgenerate
   
-    reg [15:0] a1, ai1, a2, ai2, a3, ai3, a4, ai4;
-  reg [15:0] b1,bi1,b2,bi2,b3,bi3,b4,bi4;
+    wire [15:0] a1, ai1, a2, ai2, a3, ai3, a4, ai4;
+  wire [15:0] b1,bi1,b2,bi2,b3,bi3,b4,bi4;
   multi_two_imaginary a(.real_in1(real_stage2[2]),.imag_in1(imag_stage2[2]),.real_in2(w0_real[0]),.imag_in2(w0_imag[0]),.real_op(a1),.imag_op(ai1));
   multi_two_imaginary b(.real_in1(real_stage2[3]),.imag_in1(imag_stage2[3]),.real_in2(w0_real[2]),.imag_in2(w0_imag[2]),.real_op(a2),.imag_op(ai2));
   multi_two_imaginary c(.real_in1(real_stage2[6]),.imag_in1(imag_stage2[6]),.real_in2(w0_real[0]),.imag_in2(w0_imag[0]),.real_op(a3),.imag_op(ai3));
@@ -383,7 +380,7 @@ module fft_8point (
 
     integer j,k;
     always @(*) begin
-      if(real_in[0][14:10]==5'd31 || real_in[1][14:10]==5'd31 || real_in[2][14:10]==5'd31 || real_in[3][14:10]==5'd31 || real_in[4][14:10]==5'd31 || real_in[5][14:10]==5'd31 ||real_in[6][14:10]==5'd31 || real_in[7][14:10]==5'd31 ||imag_in[0][14:10]==5'd31 ||imag_in[1][14:10]==5'd31 ||imag_in[2][14:10]==5'd31 ||imag_in[3][14:10]==5'd31 ||imag_in[4][14:10]==5'd31 ||imag_in[5][14:10]==5'd31 ||imag_in[6][14:10]==5'd31 ||real_out[7][14:10]==5'd31 )begin
+     if(real_in0[14:10]==5'd31 || real_in1[14:10]==5'd31 || real_in2[14:10]==5'd31 || real_in3[14:10]==5'd31 || real_in4[14:10]==5'd31 || real_in5[14:10]==5'd31 ||real_in6[14:10]==5'd31 || real_in7[14:10]==5'd31 ||imag_in0[14:10]==5'd31 ||imag_in1[14:10]==5'd31 ||imag_in2[14:10]==5'd31 ||imag_in3[14:10]==5'd31 ||imag_in4[14:10]==5'd31 ||imag_in5[14:10]==5'd31 ||imag_in6[14:10]==5'd31 ||real_in7[14:10]==5'd31 )begin
       
       invalid_input=1'b1;
       end
@@ -412,16 +409,63 @@ module fft_8point (
             end
             
         end
-        real_outi=real_out;
-        imag_outi=imag_out;
-      for(k=0;k<8;k=k+1) begin
-        real_outi[k][14:10]=real_outz[k];
-        imag_outi[k][14:10]=imag_outz[k];
+        real_outi0=real_out[0];
+        real_outi1=real_out[1];
+        real_outi2=real_out[2];
+        real_outi3=real_out[3];
+        real_outi4=real_out[4];
+        real_outi5=real_out[5];
+        real_outi6=real_out[6];
+        real_outi7=real_out[7];
+        
+        imag_outi0=imag_out[0];
+        imag_outi1=imag_out[1];
+        imag_outi2=imag_out[2];
+        imag_outi3=imag_out[3];
+        imag_outi4=imag_out[4];
+        imag_outi5=imag_out[5];
+        imag_outi6=imag_out[6];
+        imag_outi7=imag_out[7];
+    
+        real_outi0[14:10]=real_outz[0];
+         real_outi1[14:10]=real_outz[1];
+          real_outi2[14:10]=real_outz[2];
+           real_outi3[14:10]=real_outz[3];
+            real_outi4[14:10]=real_outz[4];
+             real_outi5[14:10]=real_outz[5];
+              real_outi6[14:10]=real_outz[6];
+               real_outi7[14:10]=real_outz[7];
+         
+        imag_outi0[14:10]=imag_outz[0];
+        
+         imag_outi1[14:10]=imag_outz[1];
+          imag_outi2[14:10]=imag_outz[2];
+           imag_outi3[14:10]=imag_outz[3];
+            imag_outi4[14:10]=imag_outz[4];
+             imag_outi5[14:10]=imag_outz[5];
+             imag_outi6[14:10]=imag_outz[6];
+              imag_outi7[14:10]=imag_outz[7];
+       
         end
-        end
-        else begin
-        real_outi=real_out;
-        imag_outi=imag_out;
+       else begin
+         real_outi0=real_out[0];
+        real_outi1=real_out[1];
+        real_outi2=real_out[2];
+        real_outi3=real_out[3];
+        real_outi4=real_out[4];
+        real_outi5=real_out[5];
+        real_outi6=real_out[6];
+        real_outi7=real_out[7];
+        
+        imag_outi0=imag_out[0];
+        imag_outi1=imag_out[1];
+        imag_outi2=imag_out[2];
+        imag_outi3=imag_out[3];
+        imag_outi4=imag_out[4];
+        imag_outi5=imag_out[5];
+        imag_outi6=imag_out[6];
+        imag_outi7=imag_out[7];
+    
         end
 
     end
