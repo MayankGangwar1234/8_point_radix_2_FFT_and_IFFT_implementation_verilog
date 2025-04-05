@@ -86,6 +86,9 @@ Precomputed values for 8-point IFFT:
 ![fft schm](https://github.com/user-attachments/assets/29a8da8d-e9b5-420d-bde7-2bfb233b6713)
 
 
+![op fft](https://github.com/user-attachments/assets/4e79e47d-f985-42af-b715-8dfb1677f7b1)
+
+
 The testbench verifies:
 - Correct handling of special cases (zero, infinity)
 - Accurate FFT computation
