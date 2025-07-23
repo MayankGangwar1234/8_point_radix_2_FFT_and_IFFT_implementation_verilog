@@ -60,7 +60,12 @@ module ieee16bitsubtraction(input [15:0] in1, input [15:0] in2, input signal, ou
     integer i, j;
 
     always @ (*) begin
+        
         if(signal) begin
+            if(in1==in2)begin
+                op=16'b0;
+            end
+            else begin
             exp1 = in1[14:10];
             exp2 = in2[14:10];
             mantissa1 = {1'b1, in1[9:0]};
@@ -102,6 +107,7 @@ module ieee16bitsubtraction(input [15:0] in1, input [15:0] in2, input signal, ou
                 
                 op[9:0] = real_mantissa[10:1];
                 op[14:10] = exp_result;
+            end
             end
         end
     end
