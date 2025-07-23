@@ -48,12 +48,17 @@ Verilog implementation of 8-point Fast Fourier Transform (FFT) and Inverse FFT (
   - 10 mantissa bits (with implicit leading 1)
 
 ### FFT Algorithm
+<img width="482" height="350" alt="image" src="https://github.com/user-attachments/assets/d150bcd8-b1e0-41b6-97a9-352d683ee404" />
+
 1. Input bit-reversal reordering
 2. Three stages of butterfly computations:
    - Stage 1: 4 parallel butterflies
    - Stage 2: 2 parallel butterflies with twiddle factors
    - Stage 3: Final butterfly computations with twiddle factors
 ### IFFT Algorithm
+<img width="484" height="340" alt="image" src="https://github.com/user-attachments/assets/21960cd5-de78-44a2-a17b-1e697e91462d" />
+
+
  1.Input bit-reversal reordering
  
  2.Reorder the input data based on bit-reversed indices.
