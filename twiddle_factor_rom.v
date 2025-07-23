@@ -37,7 +37,7 @@ module twiddle_factor_rom (
     W2_real = 16'h0000; // 0.0
     W2_imag = 16'h3C00; // 1.0
 
-    // W_8^3 = -1/sqrt(2) - j(1/sqrt(2))
+        // W_8^3 = -1/sqrt(2) + j(1/sqrt(2))
     W3_real = 16'hB9a8; // -0.7071
     W3_imag = 16'h39a8; // 0.7071
     end
