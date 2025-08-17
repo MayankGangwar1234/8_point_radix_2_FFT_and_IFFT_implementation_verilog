@@ -86,7 +86,8 @@ Precomputed values for 8-point IFFT:
 
 ## Simulation Results
 
-![fft schm](https://github.com/user-attachments/assets/29a8da8d-e9b5-420d-bde7-2bfb233b6713)
+<img width="1170" height="669" alt="Screenshot 2025-08-17 142911" src="https://github.com/user-attachments/assets/dd75751f-3d33-4231-9a54-0689444e7c50" />
+
 
 
 ![op fft](https://github.com/user-attachments/assets/4e79e47d-f985-42af-b715-8dfb1677f7b1)
